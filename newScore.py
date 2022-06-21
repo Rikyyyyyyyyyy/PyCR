@@ -8,8 +8,10 @@ import gen_clust
 import numpy as np
 import math
 import os
+import shutil
 import imageio
 import matplotlib.pyplot as plt
+import matplotlib
 from sklearn.model_selection import train_test_split
 from scipy.stats.distributions import chi2
 from sklearn.preprocessing import StandardScaler
@@ -18,15 +20,16 @@ import warnings
 import SelectivityRatio
 import vipScore
 warnings.filterwarnings('ignore')
+matplotlib.use('agg')
 # start backward Feature Selection and Forward Feature selection
 # INPUT : class number, class data, sample data, start number, stop number , spliting rate, iteration number(in main), original class name, scale type
 # OUTPUT : selected variable index, training sample data, testing sample data, training class data, testing class data
-def setNumber(classNum, classList, allSampleList, startNum, endNum,howMuchSplit,iternum, class_trans_dict,scale_type, V_rankingAlgorithm, nComponent):
+def setNumber(classNum, classList, allSampleList, startNum, endNum,howMuchSplit,iternum, class_trans_dict,scale_type, V_rankingAlgorithm, nComponent,outputPath):
     CLASS_COLOR = ["#dc3c40", "#55a6bc", 'purple', 'yellowgreen', 'wheat', 'royalblue', '#42d7f5', '#ca7cf7', '#d2f77c']
     CLASS_LABEL = ["o", "x", "4", "*", "+", "D", "8", "s", "p"]
     allSampleList = np.array(allSampleList)
     #get the half randomly selected sample and calculate the fisher ration
-    sample_training, sample_test, class_training, class_test = selectRandom(allSampleList, classList,howMuchSplit)
+    sample_training, sample_test, class_training, class_test = selectRandom(allSampleList, classList,0.5)
     if V_rankingAlgorithm == 'fisher':
         fisherRatio = fisherRatio_in.cal_ratio(sample_training, class_training, classNum)
     elif V_rankingAlgorithm == 'vip':
@@ -40,7 +43,7 @@ def setNumber(classNum, classList, allSampleList, startNum, endNum,howMuchSplit,
     endNumList = []
     sorted_fisher_idx = []
     # select all the variable with fisher ration larger than start number as start variables, selecte all the variable with fisher ratio between start and stop number as stop variables.
-
+    print('Test1 ')
     for i in sorted_fisherRatio:
         if i[1] > startNum:
             startNumList.append(i[0])
@@ -55,10 +58,10 @@ def setNumber(classNum, classList, allSampleList, startNum, endNum,howMuchSplit,
     else:
         scaled_half_samples, half_mean, half_std = scale_half_data(sample_training)
         scaled_all_samples = scale_all_data(allSampleList, half_mean, half_std)
-
+    print('Test2 ')
     temp_score = calScore(scaled_half_samples[:,startNumList], scaled_all_samples[:,startNumList])
     oldScore = gen_clust.RunClust(temp_score,classList,classNum)
-
+    print('Test3 ')
     # get rid of the variable form teh start variable list and calculate the score again
     # compare with the the old score
     # if the new score is lower than the old score, we need save the variable in selected variable list
@@ -71,14 +74,17 @@ def setNumber(classNum, classList, allSampleList, startNum, endNum,howMuchSplit,
         class_index_list[classList[i]].append(i)
     picCounter = 0
 
+
     #  Calculate the first score and get the sign
     sign_scaled_half_samples = scaled_half_samples[:, finalOutPutIdx]
     sign_scaled_all_samples = scaled_all_samples[:, finalOutPutIdx]
+
     dummyU, dummyS, V = svds(sign_scaled_half_samples, k=2)
     V = V.transpose()
     score = np.dot(sign_scaled_all_samples, V)
     score1 = score[:,0]
     score2 = score[:,1]
+
 
     # start the backward selection
     for idx in startNumList:
@@ -96,7 +102,7 @@ def setNumber(classNum, classList, allSampleList, startNum, endNum,howMuchSplit,
             elif newScore < oldScore:
                 print("KEPT   , SCORES [new: old] - ["+ str(s_new) + ":"+str(s_old) + "]" )
                 finalOutPutIdx.append(idx)
-                # generate the PCA graph for the first iteration and gather together to form a gif  animation
+                #generate the PCA graph for the first iteration and gather together to form a gif  animation
                 if iternum ==0:
                     dummyU, dummyS, V = svds(temp_scaled_half_samples, k=2)
                     V = V.transpose()
@@ -130,12 +136,11 @@ def setNumber(classNum, classList, allSampleList, startNum, endNum,howMuchSplit,
                     plt.ylabel("PC2 (%{0:0.3f}".format(p2_percentage) + ")")
                     plt.rcParams.update({'font.size': 10})
                     plt.legend()
-                    plt.savefig('output/animation/' + str(picCounter) + '.png')
+                    plt.savefig(outputPath + '/animation/' + str(picCounter) + '.png')
                     plt.figure().clear()
                     picCounter += 1
         else:
             break
-
     # start forward selection
     for index in endNumList:
         finalOutPutIdx.append(index)
@@ -148,7 +153,7 @@ def setNumber(classNum, classList, allSampleList, startNum, endNum,howMuchSplit,
         if newScore > oldScore:
             oldScore = newScore
             print("ADD    , SCORES [new: old] - ["+ str(e_new) + ":"+str(e_old) + "]" )
-            # generate the PCA graph for the first iteration and gather together to form a gif  animation
+            #generate the PCA graph for the first iteration and gather together to form a gif  animation
             if iternum ==0:
                 dummyU, dummyS, V = svds(temp_selected_half_matrix, k=2)
                 V = V.transpose()
@@ -182,20 +187,23 @@ def setNumber(classNum, classList, allSampleList, startNum, endNum,howMuchSplit,
                 plt.ylabel("PC2 (%{0:0.3f}".format(p2_percentage) + ")")
                 plt.rcParams.update({'font.size': 10})
                 plt.legend()
-                plt.savefig('output/animation/' + str(picCounter) + '.png')
+                plt.savefig(outputPath + '/animation/' + str(picCounter) + '.png')
                 plt.figure().clear()
                 picCounter += 1
         elif newScore < oldScore:
             finalOutPutIdx.remove(index)
             print("IGNORED, SCORES [new: old] - ["+ str(e_new) + ":"+str(e_old) + "]" )
-    png_dir = 'output/animation/'
-    images = []
-    for file_num in range(len(sorted(os.listdir(png_dir)))-1):
-        file_name = str(file_num)+'.png'
-        if file_name.endswith('.png') and file_name != "0.png":
-            file_path = os.path.join(png_dir, file_name)
-            images.append(imageio.imread(file_path))
-    imageio.mimsave('output/animation.gif', images)
+
+    if iternum ==0:
+        png_dir = outputPath + '/animation/'
+        images = []
+        for file_num in range(len(sorted(os.listdir(png_dir)))-1):
+            file_name = str(file_num)+'.png'
+            if file_name.endswith('.png') and file_name != "0.png":
+                file_path = os.path.join(png_dir, file_name)
+                images.append(imageio.imread(file_path))
+        imageio.mimsave(outputPath + '/animation.gif', images)
+        shutil.rmtree(png_dir)
     return finalOutPutIdx, sample_training, sample_test, class_training, class_test
 
 # scale samples with the mean and std from previous scaling

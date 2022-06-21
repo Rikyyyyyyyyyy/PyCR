@@ -10,23 +10,28 @@ warnings.filterwarnings('ignore')
 # INPUT : None
 # OUTPUT : None
 def create_folder():
+    OUTPUT_PATH = 'output'
     shutil.rmtree("output")
     os.mkdir('output')
+    if not os.path.exists(OUTPUT_PATH):
+        os.makedirs(OUTPUT_PATH)
     # Create the needed directory if directory not exist
-    if not os.path.exists('output/animation'):
-        os.makedirs('output/animation')
-    if not os.path.exists('output/rocExternal'):
-        os.makedirs('output/rocExternal')
-    if not os.path.exists('output/rocIterations'):
-        os.makedirs('output/rocIterations')
-    if not os.path.exists('output/rocTrainFS'):
-        os.makedirs('output/rocTrainFS')
-    if not os.path.exists('output/rocTrainNoFS'):
-        os.makedirs('output/rocTrainNoFS')
-    if not os.path.exists('output/rocValiFS'):
-        os.makedirs('output/rocValiFS')
-    if not os.path.exists('output/rocValiNoFS'):
-        os.makedirs('output/rocValiNoFS')
+    if not os.path.exists(OUTPUT_PATH + '/animation'):
+        os.makedirs(OUTPUT_PATH + '/animation')
+    if not os.path.exists(OUTPUT_PATH + '/rocExternal'):
+        os.makedirs(OUTPUT_PATH + '/rocExternal')
+    if not os.path.exists(OUTPUT_PATH + '/rocIterations'):
+        os.makedirs(OUTPUT_PATH + '/rocIterations')
+    if not os.path.exists(OUTPUT_PATH + '/rocTrainFS'):
+        os.makedirs(OUTPUT_PATH + '/rocTrainFS')
+    if not os.path.exists(OUTPUT_PATH + '/rocTrainNoFS'):
+        os.makedirs(OUTPUT_PATH + '/rocTrainNoFS')
+    if not os.path.exists(OUTPUT_PATH + '/rocValiFS'):
+        os.makedirs(OUTPUT_PATH + '/rocValiFS')
+    if not os.path.exists(OUTPUT_PATH + '/rocValiNoFS'):
+        os.makedirs(OUTPUT_PATH + '/rocValiNoFS')
+    return OUTPUT_PATH
+
 
 # output csv file content as list by column
 # INPUT : file name
@@ -77,6 +82,19 @@ def gen_file_by_class_matrix(header,matrix,fileName):
         # write multiple rows
         for row in matrix:
             writer.writerow(row)
+
+def gen_file_by_line(header,line,fileName):
+    with open(fileName, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+        # write multiple rows
+        writer.writerow(line)
+
+def gen_file_for_one_line(line,fileName):
+    with open(fileName, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(line)
+
 
 # generate file by the input matrix by list (one dimension) by row
 # INPUT : data header, list, output file name
@@ -134,11 +152,18 @@ def export_file(variable, class_list, indice, hori, fileName, label_dic,sampleNa
         class_row.insert(0, "Label")
         writer.writerow(class_row)
         variable = np.array(variable)
+
         variable = variable[:, list(hori)]
         variable = variable[list(indice),:]
+
         variableName = [variableName[i] for i in hori]
         variable = np.transpose(variable)
         temp_vari = np.ndarray.tolist(variable)
         for i in range(len(temp_vari)):
             temp_vari[i].insert(0,str(variableName[i]))
             writer.writerow(temp_vari[i])
+            writer.writerow(temp_vari[i])
+
+
+
+
