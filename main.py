@@ -24,10 +24,9 @@ import PyCR
 
 def main():
 
-    # PyCR.runPyCR('true',0.34,'false','classTupa','false','','input/data_algae.csv', 'input/class_algae_string.csv', 'input/S_name.csv', 'input/v_name.csv', 'AutoScale', 1,2,'selectivity',3)
-    #PyCR.runPyCR('true',0.34,'false','classTupa','false','','input/algae/data_algae.csv', 'input/algae/class_algae_string.csv', 'input/algae/S_name.csv', 'input/algae/v_name.csv', 'AutoScale', 100,0.85,'selectivity',3)
-    PyCR.runPyCR('true',0.34,'false','classTupa','false','','input/coffee/data_coffee.csv', 'input/coffee/class_coffee.csv', 'input/coffee/Sname_coffee.csv', 'input/coffee/Vname_coffee.csv', 'AutoScale', 5,0.85,'selectivity',3)
-    # PyCR.runPyCR('true',0.34,'false','notupa','false','','input/PANCAN/data_PANCAN.csv', 'input/PANCAN/labels_PANCAN.csv', 'input/PANCAN/Sname_PANCAN.csv', 'input/PANCAN/Vname_PANCAN.csv', 'AutoScale', 3,0.85,'selectivity',3)
+    # PyCR.runPyCR('true',0.34,'false','classTupa','false','','input/algae/data_algae.csv', 'input/algae/class_algae_string.csv', 'input/algae/S_name.csv', 'input/algae/v_name.csv', 'AutoScale', 100,0.85,'selectivity',3)
+    #PyCR.runPyCR('true',0.34,'false','classTupa','false','','input/coffee/data_coffee.csv', 'input/coffee/class_coffee.csv', 'input/coffee/Sname_coffee.csv', 'input/coffee/Vname_coffee.csv', 'AutoScale', 100,0.85,'selectivity',3)
+    PyCR.runPyCR('true',0.34,'false','notupa','false','','input/PANCAN/data_PANCAN.csv', 'input/PANCAN/labels_PANCAN.csv', 'input/PANCAN/Sname_PANCAN.csv', 'input/PANCAN/Vname_PANCAN.csv', 'AutoScale', 10,0.85,'selectivity',3)
 
 
 
