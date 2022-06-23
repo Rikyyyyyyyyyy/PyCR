@@ -11,10 +11,11 @@ warnings.filterwarnings('ignore')
 # OUTPUT : None
 def create_folder():
     OUTPUT_PATH = 'output'
-    shutil.rmtree("output")
-    os.mkdir('output')
     if not os.path.exists(OUTPUT_PATH):
         os.makedirs(OUTPUT_PATH)
+    else:
+        shutil.rmtree("output")
+        os.mkdir('output')
     # Create the needed directory if directory not exist
     if not os.path.exists(OUTPUT_PATH + '/animation'):
         os.makedirs(OUTPUT_PATH + '/animation')
@@ -163,7 +164,12 @@ def export_file(variable, class_list, indice, hori, fileName, label_dic,sampleNa
             temp_vari[i].insert(0,str(variableName[i]))
             writer.writerow(temp_vari[i])
             writer.writerow(temp_vari[i])
-
-
-
-
+def clearGenerateErrorMessage(msgs,path):
+    shutil.rmtree(path)
+    if not os.path.exists(path):
+        os.makedirs(path)
+    with open(path + '/ErrorMessage.csv', 'w', newline='') as f:
+        writer = csv.writer(f)
+        # write multiple rows
+        for msg in msgs:
+            writer.writerow(msg)
