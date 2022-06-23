@@ -11,10 +11,11 @@ warnings.filterwarnings('ignore')
 # OUTPUT : None
 def create_folder():
     OUTPUT_PATH = 'output'
-    shutil.rmtree("output")
-    os.mkdir('output')
     if not os.path.exists(OUTPUT_PATH):
         os.makedirs(OUTPUT_PATH)
+    else:
+        shutil.rmtree("output")
+        os.mkdir('output')
     # Create the needed directory if directory not exist
     if not os.path.exists(OUTPUT_PATH + '/animation'):
         os.makedirs(OUTPUT_PATH + '/animation')
